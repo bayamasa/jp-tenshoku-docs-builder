@@ -126,7 +126,7 @@ class TestLoadResumeYaml:
 
     def test_load_nonexistent(self):
         with pytest.raises(FileNotFoundError):
-            load_resume_yaml("/nonexistent/path.yaml")
+            load_resume_yaml("/nonexistent/path.yaml", credential_path="/nonexistent/cred.yaml")
 
     def test_credential_merge(self, tmp_path):
         resume_data = {
@@ -172,19 +172,6 @@ class TestLoadResumeYaml:
         assert result.name == "新しい 名前"
         assert result.name_kana == "あたらしい なまえ"
         assert result.birth_day == "2000年"
-
-    def test_load_without_credential(self, tmp_path):
-        resume_data = {
-            "date": "2024年1月1日現在",
-            "name_kana": "やまだ たろう",
-            "name": "山田 太郎",
-            "birth_day": "1990年",
-        }
-        resume_file = tmp_path / "resume.yaml"
-        resume_file.write_text(yaml.dump(resume_data, allow_unicode=True))
-
-        result = load_resume_yaml(resume_file)
-        assert result.name == "山田 太郎"
 
     def test_credential_nonexistent(self, tmp_path):
         resume_data = {

@@ -40,7 +40,7 @@ uv run python -m jp_tenshoku_docs_builder sample/work_history_standard.yaml -c s
 # 職務経歴書（STAR法）
 uv run python -m jp_tenshoku_docs_builder sample/work_history_star.yaml -c sample/credential.yaml -o output/work-history-star.pdf --format star
 
-# 履歴書（-c 必須）
+# 履歴書
 uv run python -m jp_tenshoku_docs_builder sample/resume.yaml -c sample/credential.yaml -o output/resume.pdf --type resume
 
 # フォントディレクトリを指定
@@ -52,7 +52,7 @@ uv run python -m jp_tenshoku_docs_builder sample/work_history_standard.yaml -c s
 | オプション | 説明 | デフォルト |
 |---|---|---|
 | `input` | 入力YAMLファイルパス（必須） | - |
-| `-c, --credential` | 個人情報YAMLファイルパス（履歴書では必須） | なし |
+| `-c, --credential` | 個人情報YAMLファイルパス（必須） | - |
 | `-o, --output` | 出力PDFファイルパス | `output/output.pdf` |
 | `--font-dir` | 日本語フォントファイルのディレクトリ | なし（自動検索） |
 | `--type` | 文書タイプ (`work-history` / `resume`) | `work-history` |

@@ -303,4 +303,4 @@ class TestLoadYaml:
 
     def test_load_nonexistent(self):
         with pytest.raises(FileNotFoundError):
-            load_yaml("/nonexistent/path.yaml")
+            load_yaml("/nonexistent/path.yaml", credential_path="/nonexistent/cred.yaml")

@@ -42,7 +42,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "-c", "--credential",
         type=Path,
-        default=None,
+        required=True,
         help="Path to credential YAML file containing personal info (name, address, etc.)",
     )
     parser.add_argument(
@@ -59,7 +59,7 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Error: Input file not found: {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    if args.credential is not None and not args.credential.exists():
+    if not args.credential.exists():
         print(
             f"Error: Credential file not found: {args.credential}",
             file=sys.stderr,
@@ -95,13 +95,6 @@ def _build_work_history(args: argparse.Namespace) -> None:
 def _build_resume(args: argparse.Namespace) -> None:
     from jp_tenshoku_docs_builder.resume.builder import build_resume_pdf
     from jp_tenshoku_docs_builder.resume.loader import load_resume_yaml
-
-    if args.credential is None:
-        print(
-            "Error: --credential (-c) is required for resume type.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
 
     try:
         data = load_resume_yaml(args.input, credential_path=args.credential)
