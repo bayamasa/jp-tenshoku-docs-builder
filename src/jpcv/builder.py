@@ -19,7 +19,17 @@ from reportlab.platypus import (
 )
 
 from jpcv.fonts import register_fonts
-from jpcv.models import Company, Project, WorkHistory
+from jpcv.models import (
+    SideCompany,
+    SideProject,
+    StandardCompany,
+    StandardProject,
+    StarCompany,
+    StarProject,
+    _CompanyBase,
+    _ProjectBase,
+    _WorkHistoryBase,
+)
 from jpcv.styles import (
     MARGIN_BOTTOM,
     MARGIN_LEFT,
@@ -67,7 +77,7 @@ def _escape(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def _build_header(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list:
+def _build_header(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) -> list:
     """Build the header section: title, date, name."""
     elements = []
     elements.append(Paragraph("職 務 経 歴 書", styles["title"]))
@@ -76,7 +86,7 @@ def _build_header(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list:
     return elements
 
 
-def _build_summary(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list:
+def _build_summary(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) -> list:
     """Build 職務要約 section."""
     if not data.summary:
         return []
@@ -87,7 +97,7 @@ def _build_summary(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list
     return elements
 
 
-def _build_highlights(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list:
+def _build_highlights(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) -> list:
     """Build 活かせる経験・知識・技術 section."""
     if not data.highlights:
         return []
@@ -99,7 +109,7 @@ def _build_highlights(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> l
     return elements
 
 
-def _build_env_cell(project: Project, styles: dict[str, ParagraphStyle]) -> Paragraph:
+def _build_env_cell(project: _ProjectBase, styles: dict[str, ParagraphStyle]) -> Paragraph:
     """Build the environment column content for a project row."""
     parts = []
     env = project.environment
@@ -113,11 +123,11 @@ def _build_env_cell(project: Project, styles: dict[str, ParagraphStyle]) -> Para
     ]
     for label, items in categories:
         if items:
-            parts.append(f"◆{label}<br/>" + "<br/>".join(_escape(i) for i in items))
+            parts.append(f"◆ {label}<br/>" + "<br/>".join(_escape(i) for i in items))
     return Paragraph("<br/>".join(parts), styles["cell"])
 
 
-def _build_period_cell(project: Project, styles: dict[str, ParagraphStyle]) -> Paragraph:
+def _build_period_cell(project: _ProjectBase, styles: dict[str, ParagraphStyle]) -> Paragraph:
     """Build the period column for a project row.
 
     Splits on ～ into three lines: start / ～ / end.
@@ -129,8 +139,8 @@ def _build_period_cell(project: Project, styles: dict[str, ParagraphStyle]) -> P
     return Paragraph(text, styles["cell"])
 
 
-def _build_project_content(project: Project, styles: dict[str, ParagraphStyle]) -> Paragraph:
-    """Build the main content column for a project row."""
+def _build_project_content(project: StandardProject, styles: dict[str, ParagraphStyle]) -> Paragraph:
+    """Build the main content column for a standard project row."""
     parts = []
 
     # Industry / project name (period is now in separate column)
@@ -142,23 +152,54 @@ def _build_project_content(project: Project, styles: dict[str, ParagraphStyle]) 
     parts.append(f"<b>{header_line}</b>")
 
     if project.overview:
-        parts.append(f"◆プロジェクト概要<br/>{_escape(project.overview.strip()).replace(chr(10), '<br/>')}")
+        parts.append(f"◆ プロジェクト概要<br/>{_escape(project.overview.strip()).replace(chr(10), '<br/>')}")
 
     if project.phases:
-        parts.append(f"◆担当フェーズ<br/>{_escape(project.phases)}")
+        parts.append(f"◆ 担当フェーズ<br/>{_escape(project.phases)}")
 
     if project.responsibilities:
         items = "<br/>".join(f"・{_escape(r)}" for r in project.responsibilities)
-        parts.append(f"◆業務内容<br/>{items}")
+        parts.append(f"◆ 業務内容<br/>{items}")
 
     if project.achievements:
         items = "<br/>".join(f"・{_escape(a)}" for a in project.achievements)
-        parts.append(f"◆実績・取り組み<br/>{items}")
+        parts.append(f"◆ 実績・取り組み<br/>{items}")
 
     return Paragraph("<br/><br/>".join(parts), styles["cell"])
 
 
-def _build_team_cell(project: Project, styles: dict[str, ParagraphStyle]) -> Paragraph:
+def _build_project_content_star(project: StarProject, styles: dict[str, ParagraphStyle]) -> Paragraph:
+    """Build the main content column for a STAR project row."""
+    parts = []
+
+    # Industry / project name
+    header_parts = []
+    if project.industry:
+        header_parts.append(_escape(project.industry))
+    header_parts.append(_escape(project.name))
+    header_line = " / ".join(header_parts) if project.industry else _escape(project.name)
+    parts.append(f"<b>{header_line}</b>")
+
+    if project.situation:
+        text = _escape(project.situation.strip()).replace(chr(10), "<br/>")
+        parts.append(f"◆ 状況（Situation）<br/>{text}")
+
+    if project.task:
+        text = _escape(project.task.strip()).replace(chr(10), "<br/>")
+        parts.append(f"◆ 課題（Task）<br/>{text}")
+
+    if project.action:
+        items = "<br/>".join(f"・{_escape(a)}" for a in project.action)
+        parts.append(f"◆ 行動（Action）<br/>{items}")
+
+    if project.result:
+        items = "<br/>".join(f"・{_escape(r)}" for r in project.result)
+        parts.append(f"◆ 結果（Result）<br/>{items}")
+
+    return Paragraph("<br/><br/>".join(parts), styles["cell"])
+
+
+def _build_team_cell(project: _ProjectBase, styles: dict[str, ParagraphStyle]) -> Paragraph:
     """Build the team size / role column."""
     parts = []
     if project.team_size:
@@ -168,7 +209,11 @@ def _build_team_cell(project: Project, styles: dict[str, ParagraphStyle]) -> Par
     return Paragraph("<br/>".join(parts), styles["cell"])
 
 
-def _build_experience(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list:
+def _build_experience(
+    data: _WorkHistoryBase,
+    styles: dict[str, ParagraphStyle],
+    content_format: str = "standard",
+) -> list:
     """Build 職務経歴 section with company and project tables."""
     if not data.experience:
         return []
@@ -176,13 +221,17 @@ def _build_experience(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> l
     elements.append(Paragraph("■職務経歴", styles["section_header"]))
 
     for company in data.experience:
-        elements.extend(_build_company_table(company, styles))
+        elements.extend(_build_company_table(company, styles, content_format))
         elements.append(Spacer(1, 3 * mm))
 
     return elements
 
 
-def _build_company_table(company: Company, styles: dict[str, ParagraphStyle]) -> list:
+def _build_company_table(
+    company: _CompanyBase,
+    styles: dict[str, ParagraphStyle],
+    content_format: str = "standard",
+) -> list:
     """Build a single company's table (header + info + projects)."""
     elements = []
 
@@ -250,7 +299,10 @@ def _build_company_table(company: Company, styles: dict[str, ParagraphStyle]) ->
 
         for project in company.projects:
             period_cell = _build_period_cell(project, styles)
-            content_cell = _build_project_content(project, styles)
+            if content_format == "star":
+                content_cell = _build_project_content_star(project, styles)
+            else:
+                content_cell = _build_project_content(project, styles)
             env_cell = _build_env_cell(project, styles)
             team_cell = _build_team_cell(project, styles)
             table_data.append([period_cell, content_cell, env_cell, team_cell])
@@ -270,7 +322,87 @@ def _build_company_table(company: Company, styles: dict[str, ParagraphStyle]) ->
     return elements
 
 
-def _build_technical_skills(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list:
+def _build_side_project_content(
+    project: SideProject,
+    styles: dict[str, ParagraphStyle],
+) -> Paragraph:
+    """Build the content column for a side project row."""
+    parts = []
+    parts.append(f"<b>{_escape(project.name)}</b>")
+    if project.description:
+        text = _escape(project.description.strip()).replace(chr(10), "<br/>")
+        parts.append(text)
+    return Paragraph("<br/>".join(parts), styles["cell"])
+
+
+def _build_side_experience(
+    data: _WorkHistoryBase,
+    styles: dict[str, ParagraphStyle],
+) -> list:
+    """Build 副業・その他経歴 section."""
+    if not data.side_experience:
+        return []
+    elements = []
+    elements.append(Paragraph("■副業・その他経歴", styles["section_header"]))
+
+    for company in data.side_experience:
+        # Company header row: period + company name (grey background)
+        header_text = f"{_escape(company.period)}　{_escape(company.company)}"
+        if company.employment_type:
+            header_text += f"（{_escape(company.employment_type)}）"
+        header_para = Paragraph(header_text, styles["company_header"])
+
+        header_table = Table(
+            [[header_para]],
+            colWidths=[CONTENT_WIDTH],
+        )
+        header_table.setStyle(TableStyle([
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+            ("BACKGROUND", (0, 0), (-1, -1), colors.Color(0.92, 0.92, 0.92)),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 3),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+            ("LEFTPADDING", (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(header_table)
+
+        # Project rows
+        if company.projects:
+            col_headers = [
+                Paragraph("<b>期間</b>", styles["cell_gothic"]),
+                Paragraph("<b>内容</b>", styles["cell_gothic"]),
+                Paragraph("<b>開発環境</b>", styles["cell_gothic"]),
+                Paragraph("<b>規模</b>", styles["cell_gothic"]),
+            ]
+            table_data = [col_headers]
+
+            for project in company.projects:
+                period_cell = Paragraph(
+                    _escape(project.period).replace("～", "<br/>～<br/>"),
+                    styles["cell"],
+                )
+                content_cell = _build_side_project_content(project, styles)
+                env_cell = _build_env_cell(project, styles)
+                team_cell = _build_team_cell(project, styles)
+                table_data.append([period_cell, content_cell, env_cell, team_cell])
+
+            project_table = Table(
+                table_data,
+                colWidths=[COL_PERIOD, COL_CONTENT, COL_ENV, COL_TEAM],
+            )
+            project_table.setStyle(TableStyle([
+                *_GRID_STYLE,
+                ("BACKGROUND", (0, 0), (-1, 0), colors.Color(0.95, 0.95, 0.95)),
+                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+            ]))
+            elements.append(project_table)
+
+        elements.append(Spacer(1, 3 * mm))
+
+    return elements
+
+
+def _build_technical_skills(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) -> list:
     """Build テクニカルスキル section."""
     if not data.technical_skills:
         return []
@@ -319,7 +451,7 @@ def _build_technical_skills(data: WorkHistory, styles: dict[str, ParagraphStyle]
     return elements
 
 
-def _build_qualifications(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list:
+def _build_qualifications(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) -> list:
     """Build 資格 section."""
     if not data.qualifications:
         return []
@@ -344,7 +476,7 @@ def _build_qualifications(data: WorkHistory, styles: dict[str, ParagraphStyle]) 
     return elements
 
 
-def _build_self_pr(data: WorkHistory, styles: dict[str, ParagraphStyle]) -> list:
+def _build_self_pr(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) -> list:
     """Build 自己PR section."""
     if not data.self_pr:
         return []
@@ -393,13 +525,38 @@ class _PageNumCanvas:
         canvas.restoreState()
 
 
-def build_pdf(data: WorkHistory, output: str | Path, font_dir: str | Path | None = None) -> Path:
+def _build_elements(
+    data: _WorkHistoryBase,
+    styles: dict[str, ParagraphStyle],
+    content_format: str = "standard",
+) -> list:
+    """Build all flowable elements for the PDF."""
+    elements = []
+    elements.extend(_build_header(data, styles))
+    elements.extend(_build_summary(data, styles))
+    elements.extend(_build_highlights(data, styles))
+    elements.extend(_build_experience(data, styles, content_format))
+    elements.extend(_build_side_experience(data, styles))
+    elements.extend(_build_technical_skills(data, styles))
+    elements.extend(_build_qualifications(data, styles))
+    elements.extend(_build_self_pr(data, styles))
+    elements.append(Paragraph("以上", styles["right"]))
+    return elements
+
+
+def build_pdf(
+    data: _WorkHistoryBase,
+    output: str | Path,
+    font_dir: str | Path | None = None,
+    content_format: str = "standard",
+) -> Path:
     """Generate the 職務経歴書 PDF.
 
     Args:
         data: Validated WorkHistory data.
         output: Output PDF file path.
         font_dir: Optional directory containing Japanese fonts.
+        content_format: Project content format ("standard" or "star").
 
     Returns:
         Path to the generated PDF.
@@ -409,17 +566,7 @@ def build_pdf(data: WorkHistory, output: str | Path, font_dir: str | Path | None
     styles = build_styles(fonts)
 
     # Collect all flowable elements
-    elements = []
-    elements.extend(_build_header(data, styles))
-    elements.extend(_build_summary(data, styles))
-    elements.extend(_build_highlights(data, styles))
-    elements.extend(_build_experience(data, styles))
-    elements.extend(_build_technical_skills(data, styles))
-    elements.extend(_build_qualifications(data, styles))
-    elements.extend(_build_self_pr(data, styles))
-
-    # "以上" right-aligned at the end
-    elements.append(Paragraph("以上", styles["right"]))
+    elements = _build_elements(data, styles, content_format)
 
     # Build the document with page numbers
     page_num_handler = _PageNumCanvas(fonts.mincho)
@@ -431,10 +578,6 @@ def build_pdf(data: WorkHistory, output: str | Path, font_dir: str | Path | None
         A4[1] - MARGIN_TOP - MARGIN_BOTTOM,
         id="main",
     )
-
-    # We need two passes for total page count.
-    # ReportLab's approach: use onPageEnd and afterFlowable won't work easily.
-    # Instead, we use a simpler approach with canvasmaker.
 
     doc = BaseDocTemplate(
         str(output),
@@ -493,15 +636,7 @@ def build_pdf(data: WorkHistory, output: str | Path, font_dir: str | Path | None
     doc2.addPageTemplates([page_template2])
 
     # Rebuild elements (Platypus consumes them)
-    elements2 = []
-    elements2.extend(_build_header(data, styles))
-    elements2.extend(_build_summary(data, styles))
-    elements2.extend(_build_highlights(data, styles))
-    elements2.extend(_build_experience(data, styles))
-    elements2.extend(_build_technical_skills(data, styles))
-    elements2.extend(_build_qualifications(data, styles))
-    elements2.extend(_build_self_pr(data, styles))
-    elements2.append(Paragraph("以上", styles["right"]))
+    elements2 = _build_elements(data, styles, content_format)
 
     doc2.build(elements2)
 

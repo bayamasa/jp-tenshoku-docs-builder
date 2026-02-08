@@ -32,6 +32,13 @@ def main(argv: list[str] | None = None) -> None:
         default=None,
         help="Directory containing Japanese font files",
     )
+    parser.add_argument(
+        "--format",
+        choices=["standard", "star"],
+        default="standard",
+        dest="content_format",
+        help="プロジェクト内容の表示形式 (default: standard)",
+    )
 
     args = parser.parse_args(argv)
 
@@ -40,13 +47,16 @@ def main(argv: list[str] | None = None) -> None:
         sys.exit(1)
 
     try:
-        data = load_yaml(args.input)
+        data = load_yaml(args.input, content_format=args.content_format)
     except Exception as e:
-        print(f"Error: Failed to load YAML: {e}", file=sys.stderr)
+        print(
+            f"Error: YAML validation failed for '{args.content_format}' format: {e}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     try:
-        result = build_pdf(data, args.output, args.font_dir)
+        result = build_pdf(data, args.output, args.font_dir, content_format=args.content_format)
         print(f"Generated: {result}")
     except Exception as e:
         print(f"Error: Failed to generate PDF: {e}", file=sys.stderr)

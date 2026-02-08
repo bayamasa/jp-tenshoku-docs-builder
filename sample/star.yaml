@@ -1,0 +1,192 @@
+# 職務経歴書サンプルデータ（STAR法パターン）
+
+date: "20xx年xx月xx日現在"
+name: "山田 太郎"
+
+summary: |
+  株式会社テクノシステムに入社後、約8年間金融業界を中心にシステム開発業務に従事してまいりました。
+  入社後3年間はPHP、Javaを中心としたWebアプリケーション開発を経験し、その後はプロジェクトリーダー
+  として要件定義から運用保守まで幅広いフェーズを担当してきました。直近では保険業界の営業支援
+  システム開発において、約15名規模のプロジェクトをリードし、顧客満足度の高いシステムを納品しました。
+
+highlights:
+  - "顧客へのヒアリングから要件定義、基本設計、詳細設計、開発までの一貫した経験"
+  - "PHP、Javaによるウェブアプリケーションの設計・開発"
+  - "約10名～15名規模のプロジェクトリーダー、サブリーダーを経験"
+  - "Oracle、SQL Server等のデータベース設計・チューニング経験"
+  - "金融業界（保険・証券）における業務知識"
+
+experience:
+  - company: "株式会社テクノシステム"
+    period: "20xx年xx月～現在"
+    business: "アプリケーション・ソフトウェアシステム開発"
+    capital: "5千万円（20xx年xx月）"
+    revenue: "3億5千万円（20xx年xx月）"
+    employees: "120人"
+    listing: "未上場"
+    employment_type: "正社員として勤務"
+    projects:
+      - period: "20xx年xx月～現在"
+        industry: "保険業界"
+        name: "営業支援システム開発"
+        situation: |
+          保険業界大手の営業部門では、営業実績・予算・顧客情報をExcelで個別管理しており、
+          データの集約に毎月多大な工数がかかっていた。また、入力ミスや版管理の問題も頻発していた。
+        task: |
+          Excel管理からWebシステムへ移行し、営業データの一元管理を実現すること。
+          プロジェクト提案から納品までを15名体制でリードする必要があった。
+        action:
+          - "クライアントへのヒアリングを重ね、業務フローを可視化し要件定義書を作成"
+          - "LaravelベースのWebアプリケーションを設計・開発し、段階的にリリース"
+          - "プロジェクトメンバーの進捗管理・タスク割り振りを実施し、協力会社との調整も担当"
+          - "導入後も定期的にヒアリングを行い、UIの改善やレスポンス向上を継続実施"
+        result:
+          - "導入後の顧客満足度調査で90%以上を達成"
+          - "既存のExcel管理と比較し、営業担当の事務作業時間を約40%削減"
+        environment:
+          languages: ["PHP", "JavaScript"]
+          os: ["Linux（CentOS）"]
+          db: ["Oracle 12c"]
+          frameworks: ["Laravel", "jQuery"]
+          tools: ["Git", "Jenkins", "Redmine"]
+        team_size: "全15名"
+        role: "リーダー"
+
+      - period: "20xx年xx月～20xx年xx月"
+        industry: "証券業界"
+        name: "証券取引管理システム保守開発"
+        situation: |
+          証券会社の取引管理システムにおいて、法改正への対応が必要となった。
+          既存システムは複雑な業務ロジックを含み、改修範囲の特定が困難な状態だった。
+        task: |
+          法改正に伴うシステム改修を期限内に完了させること。
+          また、既存の不具合を分析し再発防止策を講じること。
+        action:
+          - "法改正の影響範囲を調査し、改修対象モジュールを特定・設計"
+          - "Spring Bootベースのバックエンドの改修・テストを実施"
+          - "既存不具合の根本原因分析を行い、コードレビュー体制を強化"
+          - "後輩社員への技術指導としてペアプログラミングを導入"
+        result:
+          - "法改正対応を期限内に完了し、システム停止なく本番移行を達成"
+          - "不具合の根本原因分析を徹底し、同種の障害再発率を50%低減"
+        environment:
+          languages: ["Java", "SQL"]
+          os: ["AIX", "Windows Server"]
+          db: ["SQL Server 2016"]
+          frameworks: ["Spring Boot"]
+          tools: ["SVN", "Eclipse"]
+        team_size: "全10名"
+        role: "サブリーダー"
+
+      - period: "20xx年xx月～20xx年xx月"
+        industry: "保険業界"
+        name: "契約管理システム開発"
+        situation: |
+          保険会社の契約管理業務において、既存の紙ベース・分散管理からの脱却が求められていた。
+          新規システム開発により契約情報の登録・変更・照会を一元化するプロジェクトが立ち上がった。
+        task: |
+          契約情報管理モジュールの詳細設計・実装・テストを担当し、
+          品質目標を達成した状態で本番リリースを行うこと。
+        action:
+          - "詳細設計書を作成し、レビューを通じて設計品質を担保"
+          - "PHP・Javaを用いた契約情報管理モジュールの実装"
+          - "単体テスト・結合テストを網羅的に実施し、不具合を早期検出"
+        result:
+          - "品質目標を達成し、本番リリース後の重大障害ゼロを実現"
+        environment:
+          languages: ["PHP", "Java"]
+          os: ["AIX", "Windows"]
+          db: ["SQL Server", "Oracle"]
+        team_size: "全20名"
+        role: "メンバー"
+
+side_experience:
+  - company: "フリーランス"
+    period: "20xx年xx月～現在"
+    employment_type: "業務委託"
+    projects:
+      - period: "20xx年xx月～現在"
+        name: "個人開発 - タスク管理アプリ"
+        description: |
+          個人プロジェクトとしてタスク管理Webアプリを開発・運用。
+          REST APIの設計・実装からフロントエンドまで一貫して担当。
+        environment:
+          languages: ["TypeScript", "Python"]
+          frameworks: ["Next.js", "FastAPI"]
+          db: ["PostgreSQL"]
+          tools: ["Docker", "GitHub Actions"]
+        team_size: "1名"
+        role: "個人開発"
+
+technical_skills:
+  - category: "OS"
+    items:
+      - name: "Windows"
+        period: "8年0カ月"
+        level: "環境設計・構築が可能"
+      - name: "Linux"
+        period: "5年0カ月"
+        level: "環境設計・構築が可能"
+      - name: "AIX"
+        period: "3年0カ月"
+        level: "基本的な操作が可能"
+  - category: "言語"
+    items:
+      - name: "PHP"
+        period: "6年0カ月"
+        level: "最適なコード記述と、指示、改修が可能"
+      - name: "Java"
+        period: "5年0カ月"
+        level: "最適なコード記述と、指示、改修が可能"
+      - name: "JavaScript"
+        period: "4年0カ月"
+        level: "基本的なコード記述が可能"
+      - name: "SQL"
+        period: "8年0カ月"
+        level: "複雑なクエリ記述・チューニングが可能"
+  - category: "DB"
+    items:
+      - name: "Oracle"
+        period: "5年0カ月"
+        level: "環境設計・構築・チューニングが可能"
+      - name: "SQL Server"
+        period: "4年0カ月"
+        level: "基本的な環境構築が可能"
+  - category: "FW"
+    items:
+      - name: "Laravel"
+        period: "3年0カ月"
+        level: "実務での開発経験あり"
+      - name: "Spring Boot"
+        period: "2年0カ月"
+        level: "実務での開発経験あり"
+      - name: "jQuery"
+        period: "4年0カ月"
+        level: "実務での開発経験あり"
+
+qualifications:
+  - name: "普通自動車第一種運転免許"
+    date: "20xx年xx月取得"
+  - name: "基本情報技術者試験"
+    date: "20xx年xx月合格"
+  - name: "応用情報技術者試験"
+    date: "20xx年xx月合格"
+  - name: "Oracle Master Bronze"
+    date: "20xx年xx月取得"
+
+self_pr:
+  - title: "常に改善を心掛けた設計力"
+    content: |
+      保険業界での営業支援システムの開発では、忙しい営業担当が社外からでも使いやすいような
+      設計を心掛けてきました。導入後も定期的にヒアリングを行い、UIの改善やレスポンス速度の
+      向上など、継続的な改善を実施しています。特にモバイル対応では、外出先からの入力を
+      効率化するUI設計により、営業担当の業務効率を大幅に向上させました。
+
+  - title: "円滑にプロジェクトを進行させるマネジメント力"
+    content: |
+      自社のプロジェクトメンバーだけでなく顧客先の関係者など、約10名～15名規模の
+      プロジェクトを進めた経験があります。スケジュール管理はもちろん、メンバー個々の
+      強みを活かしたタスク割り振りや、週次でのリスク管理ミーティングの実施により、
+      担当したプロジェクトでは納期遅延ゼロを達成しました。また、新人教育にも
+      積極的に取り組み、技術勉強会の主催やペアプログラミングを通じてチーム全体の
+      スキル底上げに貢献しています。

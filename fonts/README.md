@@ -4,12 +4,14 @@
 
 ## 推奨フォント
 
-### IPAex フォント（推奨）
+### IPAex フォント（同梱済み）
 
-1. https://moji.or.jp/ipafont/ipaex00401/ からダウンロード
-2. 以下のファイルをこのディレクトリに配置:
-   - `ipaexg.ttf` (IPAexゴシック - 見出し用)
-   - `ipaexm.ttf` (IPAex明朝 - 本文用)
+本ディレクトリに以下の IPAex フォントを同梱しています。追加のダウンロードは不要です。
+
+- `ipaexg.ttf` (IPAexゴシック - 見出し用)
+- `ipaexm.ttf` (IPAex明朝 - 本文用)
+
+これらのフォントは [IPAフォントライセンス v1.0](https://moji.or.jp/ipafont/license/) に従って再配布しています。
 
 ### Noto Sans JP / Noto Serif JP
 

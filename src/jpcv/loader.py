@@ -6,12 +6,22 @@ from pathlib import Path
 
 import yaml
 
-from jpcv.models import WorkHistory
+from jpcv.models import StandardWorkHistory, StarWorkHistory, _WorkHistoryBase
 
 
-def load_yaml(path: str | Path) -> WorkHistory:
-    """Load and validate a YAML file into a WorkHistory model."""
+def load_yaml(path: str | Path, content_format: str = "standard") -> _WorkHistoryBase:
+    """Load and validate a YAML file into a WorkHistory model.
+
+    Args:
+        path: Path to the YAML file.
+        content_format: Project content format ("standard" or "star").
+
+    Returns:
+        Validated WorkHistory model instance.
+    """
     path = Path(path)
     with path.open(encoding="utf-8") as f:
         data = yaml.safe_load(f)
-    return WorkHistory.model_validate(data)
+    if content_format == "star":
+        return StarWorkHistory.model_validate(data)
+    return StandardWorkHistory.model_validate(data)

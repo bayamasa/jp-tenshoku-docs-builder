@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Environment(BaseModel):
@@ -16,23 +16,43 @@ class Environment(BaseModel):
     other: list[str] = []
 
 
-class Project(BaseModel):
-    """プロジェクト."""
+class _ProjectBase(BaseModel):
+    """プロジェクト共通フィールド."""
+
+    model_config = ConfigDict(extra="forbid")
 
     period: str
     industry: str = ""
     name: str
-    overview: str = ""
-    phases: str = ""
-    responsibilities: list[str] = []
-    achievements: list[str] = []
     environment: Environment = Environment()
     team_size: str = ""
     role: str = ""
 
 
-class Company(BaseModel):
-    """会社経歴."""
+class StandardProject(_ProjectBase):
+    """標準パターン."""
+
+    overview: str = ""
+    phases: str = ""
+    responsibilities: list[str] = []
+    achievements: list[str] = []
+
+
+class StarProject(_ProjectBase):
+    """STAR法パターン."""
+
+    situation: str
+    task: str
+    action: list[str]
+    result: list[str]
+
+
+# Backward compatibility alias
+Project = StandardProject
+
+
+class _CompanyBase(BaseModel):
+    """会社経歴の共通フィールド."""
 
     company: str
     period: str
@@ -42,7 +62,44 @@ class Company(BaseModel):
     employees: str = ""
     listing: str = ""
     employment_type: str = ""
-    projects: list[Project] = []
+
+
+class StandardCompany(_CompanyBase):
+    """標準パターンの会社経歴."""
+
+    projects: list[StandardProject] = []
+
+
+class StarCompany(_CompanyBase):
+    """STAR法パターンの会社経歴."""
+
+    projects: list[StarProject] = []
+
+
+# Backward compatibility alias
+Company = StandardCompany
+
+
+class SideProject(BaseModel):
+    """副業・その他経歴のプロジェクト."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    period: str
+    name: str
+    description: str = ""
+    environment: Environment = Environment()
+    team_size: str = ""
+    role: str = ""
+
+
+class SideCompany(BaseModel):
+    """副業・その他経歴の会社."""
+
+    company: str
+    period: str
+    employment_type: str = ""
+    projects: list[SideProject] = []
 
 
 class SkillItem(BaseModel):
@@ -74,14 +131,30 @@ class SelfPRSection(BaseModel):
     content: str
 
 
-class WorkHistory(BaseModel):
-    """職務経歴書全体."""
+class _WorkHistoryBase(BaseModel):
+    """職務経歴書の共通フィールド."""
 
     date: str
     name: str
     summary: str = ""
     highlights: list[str] = []
-    experience: list[Company] = []
+    side_experience: list[SideCompany] = []
     technical_skills: list[SkillCategory] = []
     qualifications: list[Qualification] = []
     self_pr: list[SelfPRSection] = []
+
+
+class StandardWorkHistory(_WorkHistoryBase):
+    """標準パターンの職務経歴書."""
+
+    experience: list[StandardCompany] = []
+
+
+class StarWorkHistory(_WorkHistoryBase):
+    """STAR法パターンの職務経歴書."""
+
+    experience: list[StarCompany] = []
+
+
+# Backward compatibility alias
+WorkHistory = StandardWorkHistory

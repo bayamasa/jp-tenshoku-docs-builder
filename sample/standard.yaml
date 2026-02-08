@@ -94,6 +94,24 @@ experience:
         team_size: "全20名"
         role: "メンバー"
 
+side_experience:
+  - company: "フリーランス"
+    period: "20xx年xx月～現在"
+    employment_type: "業務委託"
+    projects:
+      - period: "20xx年xx月～現在"
+        name: "個人開発 - タスク管理アプリ"
+        description: |
+          個人プロジェクトとしてタスク管理Webアプリを開発・運用。
+          REST APIの設計・実装からフロントエンドまで一貫して担当。
+        environment:
+          languages: ["TypeScript", "Python"]
+          frameworks: ["Next.js", "FastAPI"]
+          db: ["PostgreSQL"]
+          tools: ["Docker", "GitHub Actions"]
+        team_size: "1名"
+        role: "個人開発"
+
 technical_skills:
   - category: "OS"
     items:
