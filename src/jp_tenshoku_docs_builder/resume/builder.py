@@ -73,6 +73,43 @@ def _draw_box(c: canvas_module.Canvas, x: float, y: float, w: float, h: float,
     c.rect(_x(x), _y(y), w * mm, h * mm)
 
 
+def _draw_wrapped_string(c: canvas_module.Canvas, x_mm: float, y_mm: float,
+                         text: str, max_width_mm: float,
+                         font_size: float = _FS_LARGE,
+                         font_name: str | None = None) -> None:
+    """Draw a string, wrapping at the last space if it exceeds max_width_mm."""
+    if font_name:
+        c.setFont(font_name, font_size)
+    else:
+        c.setFontSize(font_size)
+    max_width_pt = max_width_mm * mm
+    text_width = c.stringWidth(text, c._fontname, c._fontsize)
+    if text_width <= max_width_pt:
+        c.drawString(_x(x_mm), _y(y_mm), text)
+        return
+    # Find the last space that fits within max_width
+    last_space = -1
+    for i, ch in enumerate(text):
+        partial = text[:i + 1]
+        if c.stringWidth(partial, c._fontname, c._fontsize) > max_width_pt:
+            break
+        if ch in (" ", "\u3000"):  # half-width or full-width space
+            last_space = i
+    if last_space > 0:
+        first_line = text[:last_space]
+        second_line = text[last_space + 1:]
+    else:
+        # No space found; hard-break at the overflow point
+        for i in range(len(text), 0, -1):
+            if c.stringWidth(text[:i], c._fontname, c._fontsize) <= max_width_pt:
+                first_line = text[:i]
+                second_line = text[i:]
+                break
+    leading_mm = font_size * 1.4 / (72 / 25.4)  # points to mm
+    c.drawString(_x(x_mm), _y(y_mm), first_line)
+    c.drawString(_x(x_mm), _y(y_mm - leading_mm), second_line)
+
+
 def _draw_textbox(c: canvas_module.Canvas, x: float, y: float, w: float, h: float,
                   text: str, font_size: float = _FS_LARGE, font_name: str | None = None) -> None:
     """Draw multi-line text within a box area (top-down)."""
@@ -213,8 +250,8 @@ def _draw_page1(c: canvas_module.Canvas, data: Resume, fonts: FontConfig) -> Non
     c.drawString(_x(20), _y(194), data.address_kana)
     c.drawString(_x(2), _y(188), "現住所 〒")
     c.drawString(_x(16), _y(188), data.address_zip)
-    c.setFont(fonts.mincho, _FS_LARGE)
-    c.drawString(_x(15), _y(182), data.address)
+    _draw_wrapped_string(c, 15, 182, data.address, max_width_mm=122,
+                         font_size=_FS_LARGE, font_name=fonts.mincho)
 
     # ── テキスト: 連絡先 ──
     # ふりがな row: y=173〜166 (7mm), vertically centered
@@ -225,8 +262,8 @@ def _draw_page1(c: canvas_module.Canvas, data: Resume, fonts: FontConfig) -> Non
     c.drawString(_x(16), _y(162), data.address_zip2)
     c.setFont(fonts.mincho, _FS_SMALL)
     c.drawRightString(_x(137), _y(162), "（現住所以外に連絡を希望する場合のみ記入）")
-    c.setFont(fonts.mincho, _FS_LARGE)
-    c.drawString(_x(15), _y(156), data.address2)
+    _draw_wrapped_string(c, 15, 156, data.address2, max_width_mm=122,
+                         font_size=_FS_LARGE, font_name=fonts.mincho)
 
     # ── テキスト: 電話・FAX（右側） ──
     c.setFont(fonts.mincho, _FS_NORMAL)
