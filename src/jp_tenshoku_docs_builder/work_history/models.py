@@ -66,6 +66,7 @@ class _CompanyBase(BaseModel):
     employees: str = ""
     listing: str = ""
     employment_type: str = ""
+    other_activities: list[str] = []
 
 
 class StandardCompany(_CompanyBase):
