@@ -41,6 +41,7 @@ STAR法形式の StarCompany と同一構造。`projects` の型のみ異なる�
 | フィールド | 型 | 必須 | 説明 |
 | --- | --- | --- | --- |
 | `projects` | list[StandardProject] | No | プロジェクト一覧 |
+| `other_activities` | list[str] | No | その他取り組み内容 (箇条書き)。プロジェクト単位では表現しにくい横断的な活動を記載 |
 
 その他のフィールドは StarCompany と共通。
 
@@ -143,6 +144,7 @@ experience:
 | `listing` | str | No | 上場区分 (例: "東証プライム", "未上場") |
 | `employment_type` | str | No | 雇用形態 (例: "正社員として勤務") |
 | `projects` | list[StarProject] | No | プロジェクト一覧 |
+| `other_activities` | list[str] | No | その他取り組み内容 (箇条書き)。プロジェクト単位では表現しにくい横断的な活動を記載 |
 
 ### StarProject
 
@@ -269,6 +271,9 @@ experience:
           tools: ["Docker", "GitHub Actions"]
         team_size: "全5名"
         role: "リーダー"
+    other_activities:
+      - "社内勉強会の主催"
+      - "新人教育・メンタリング"
 
 side_experience:
   - company: "フリーランス"

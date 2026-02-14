@@ -324,6 +324,22 @@ def _build_company_table(
         project_table.setStyle(project_style)
         elements.append(project_table)
 
+    # Other activities section
+    if company.other_activities:
+        header_para = Paragraph("<b>その他取り組み内容</b>", styles["cell_gothic"])
+        items_text = "<br/>".join(f"・{_escape(a)}" for a in company.other_activities)
+        items_para = Paragraph(items_text, styles["cell"])
+        activities_table = Table(
+            [[header_para], [items_para]],
+            colWidths=[CONTENT_WIDTH],
+        )
+        activities_table.setStyle(TableStyle([
+            *_GRID_STYLE,
+            ("BACKGROUND", (0, 0), (-1, 0), colors.Color(0.95, 0.95, 0.95)),
+            ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+        ]))
+        elements.append(activities_table)
+
     return elements
 
 
