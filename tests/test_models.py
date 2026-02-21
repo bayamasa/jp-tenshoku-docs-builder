@@ -114,13 +114,13 @@ class TestStarProject:
         p = StarProject(
             period="2020年",
             name="テストプロジェクト",
-            situation="既存システムが老朽化していた",
-            task="新システムへの移行を完了させること",
+            situation=["既存システムが老朽化していた"],
+            task=["新システムへの移行を完了させること"],
             action=["要件定義を実施", "設計・開発を担当"],
             result=["予定通りリリース完了", "障害ゼロを達成"],
         )
-        assert p.situation == "既存システムが老朽化していた"
-        assert p.task == "新システムへの移行を完了させること"
+        assert p.situation == ["既存システムが老朽化していた"]
+        assert p.task == ["新システムへの移行を完了させること"]
         assert len(p.action) == 2
         assert len(p.result) == 2
 
@@ -151,8 +151,8 @@ class TestStarWorkHistory:
                         StarProject(
                             period="2020年4月～現在",
                             name="テストプロジェクト",
-                            situation="テスト状況",
-                            task="テスト課題",
+                            situation=["テスト状況"],
+                            task=["テスト課題"],
                             action=["行動1", "行動2"],
                             result=["結果1"],
                         )
@@ -162,8 +162,8 @@ class TestStarWorkHistory:
         )
         assert len(wh.experience) == 1
         proj = wh.experience[0].projects[0]
-        assert proj.situation == "テスト状況"
-        assert proj.task == "テスト課題"
+        assert proj.situation == ["テスト状況"]
+        assert proj.task == ["テスト課題"]
 
 
 class TestSideProject:
@@ -171,14 +171,14 @@ class TestSideProject:
         p = SideProject(period="2023年", name="個人開発")
         assert p.period == "2023年"
         assert p.name == "個人開発"
-        assert p.description == ""
+        assert p.description == []
         assert p.environment.languages == []
 
     def test_full(self):
         p = SideProject(
             period="2023年1月～現在",
             name="タスク管理アプリ",
-            description="個人プロジェクトとして開発",
+            description=["個人プロジェクトとして開発"],
             environment=Environment(
                 languages=["TypeScript"],
                 frameworks=["Next.js"],
@@ -187,7 +187,7 @@ class TestSideProject:
             role="個人開発",
         )
         assert p.name == "タスク管理アプリ"
-        assert p.description == "個人プロジェクトとして開発"
+        assert p.description == ["個人プロジェクトとして開発"]
         assert p.environment.languages == ["TypeScript"]
 
     def test_extra_fields_forbidden(self):

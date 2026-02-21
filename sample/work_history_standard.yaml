@@ -100,9 +100,8 @@ side_experience:
     projects:
       - period: "20xx年xx月～現在"
         name: "個人開発 - タスク管理アプリ"
-        description: |
-          個人プロジェクトとしてタスク管理Webアプリを開発・運用。
-          REST APIの設計・実装からフロントエンドまで一貫して担当。
+        description:
+          - "個人プロジェクトとしてタスク管理Webアプリを開発・運用。REST APIの設計・実装からフロントエンドまで一貫して担当。"
         environment:
           languages: ["TypeScript", "Python"]
           frameworks: ["Next.js", "FastAPI"]

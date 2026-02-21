@@ -61,6 +61,9 @@ COL_SKILL_LEVEL = 65 * mm
 COL_QUAL_NAME = 110 * mm
 COL_QUAL_DATE = 60 * mm
 
+# For period + job type row in company header
+COL_CAREER_PERIOD = 40 * mm
+
 # Grid style constants
 _GRID_STYLE = [
     ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
@@ -123,7 +126,7 @@ def _build_env_cell(project: _ProjectBase | SideProject, styles: dict[str, Parag
         ("AWS", env.aws),
         ("Azure", env.azure),
         ("GCP", env.gcp),
-        ("ツール", env.tools),
+        ("他使用技術", env.tools),
         ("その他", env.other),
     ]
     for label, items in categories:
@@ -173,6 +176,16 @@ def _build_project_content(project: StandardProject, styles: dict[str, Paragraph
     return Paragraph("<br/><br/>".join(parts), styles["cell"])
 
 
+def _break_after_period(text: str) -> str:
+    """Insert <br/> after each '。' in already-escaped text."""
+    text = text.replace("。", "。\n")
+    # Deduplicate consecutive newlines (e.g. original had 。\n)
+    while "\n\n" in text:
+        text = text.replace("\n\n", "\n")
+    text = text.rstrip("\n")
+    return text.replace("\n", "<br/>")
+
+
 def _build_project_content_star(project: StarProject, styles: dict[str, ParagraphStyle]) -> Paragraph:
     """Build the main content column for a STAR project row."""
     parts = []
@@ -186,20 +199,24 @@ def _build_project_content_star(project: StarProject, styles: dict[str, Paragrap
     parts.append(f"<b>{header_line}</b>")
 
     if project.situation:
-        text = _escape(project.situation.strip()).replace(chr(10), "<br/>")
-        parts.append(f"◆ 状況（Situation）<br/>{text}")
+        items = "<br/>".join(_break_after_period(_escape(s.strip())) for s in project.situation)
+        if items.replace("<br/>", ""):
+            parts.append(f"◆ 状況（Situation）<br/>{items}")
 
     if project.task:
-        text = _escape(project.task.strip()).replace(chr(10), "<br/>")
-        parts.append(f"◆ 課題（Task）<br/>{text}")
+        items = "<br/>".join(_break_after_period(_escape(t.strip())) for t in project.task)
+        if items.replace("<br/>", ""):
+            parts.append(f"◆ 課題（Task）<br/>{items}")
 
     if project.action:
-        items = "<br/>".join(f"・{_escape(a)}" for a in project.action)
-        parts.append(f"◆ 行動（Action）<br/>{items}")
+        items = "<br/>".join(_break_after_period(_escape(a.strip())) for a in project.action)
+        if items.replace("<br/>", ""):
+            parts.append(f"◆ 行動（Action）<br/>{items}")
 
     if project.result:
-        items = "<br/>".join(f"・{_escape(r)}" for r in project.result)
-        parts.append(f"◆ 結果（Result）<br/>{items}")
+        items = "<br/>".join(_break_after_period(_escape(r.strip())) for r in project.result)
+        if items.replace("<br/>", ""):
+            parts.append(f"◆ 結果（Result）<br/>{items}")
 
     return Paragraph("<br/><br/>".join(parts), styles["cell"])
 
@@ -242,9 +259,8 @@ def _build_company_table(
     """Build a single company's table (header + info + projects)."""
     elements = []
 
-    # Company header row: period + company name (full width)
-    header_text = f"{_escape(company.period)}　{_escape(company.company)}"
-    header_para = Paragraph(header_text, styles["company_header"])
+    # Company header row: company name only (full width)
+    header_para = Paragraph(_escape(company.company), styles["company_header"])
 
     header_table = Table(
         [[header_para]],
@@ -260,37 +276,33 @@ def _build_company_table(
     ]))
     elements.append(header_table)
 
-    # Company info row: details | employment type
-    info_parts = []
-    if company.business:
-        info_parts.append(f"事業内容：{_escape(company.business)}")
-    finance_parts = []
-    if company.capital:
-        finance_parts.append(f"資本金：{_escape(company.capital)}")
-    if company.revenue:
-        finance_parts.append(f"売上高：{_escape(company.revenue)}")
-    if finance_parts:
-        info_parts.append("　".join(finance_parts))
-    size_parts = []
-    if company.employees:
-        size_parts.append(f"従業員数：{_escape(company.employees)}")
-    if company.listing:
-        size_parts.append(f"上場：{_escape(company.listing)}")
-    if size_parts:
-        info_parts.append("　".join(size_parts))
+    # Period + job type / employment type row
+    job_parts = []
+    if company.job_type:
+        job_parts.append(_escape(company.job_type))
+    if company.employment_type:
+        job_parts.append(_escape(company.employment_type))
+    job_text = "\u3000".join(job_parts)
 
-    info_text = "<br/>".join(info_parts)
-    info_para = Paragraph(info_text, styles["cell"])
-    emp_para = Paragraph(_escape(company.employment_type), styles["cell"])
-
-    info_table = Table(
-        [[info_para, emp_para]],
-        colWidths=[COL_COMPANY_INFO, COL_EMPLOYMENT],
+    period_job_table = Table(
+        [
+            [
+                Paragraph("<b>期間</b>", styles["cell_gothic"]),
+                Paragraph("<b>職種・雇用形態</b>", styles["cell_gothic"]),
+            ],
+            [
+                Paragraph(_escape(company.period), styles["cell"]),
+                Paragraph(job_text, styles["cell"]),
+            ],
+        ],
+        colWidths=[COL_CAREER_PERIOD, CONTENT_WIDTH - COL_CAREER_PERIOD],
     )
-    info_table.setStyle(TableStyle([
+    period_job_table.setStyle(TableStyle([
         *_GRID_STYLE,
+        ("BACKGROUND", (0, 0), (-1, 0), colors.Color(0.95, 0.95, 0.95)),
+        ("ALIGN", (0, 0), (-1, 0), "CENTER"),
     ]))
-    elements.append(info_table)
+    elements.append(period_job_table)
 
     # Project rows — each project as a separate table for better page splitting
     # splitInRow=1: プロジェクト行をページ途中で分割し余白を最小化
@@ -300,7 +312,7 @@ def _build_company_table(
             Paragraph("<b>期間</b>", styles["cell_gothic"]),
             Paragraph("<b>内容</b>", styles["cell_gothic"]),
             Paragraph("<b>開発環境</b>", styles["cell_gothic"]),
-            Paragraph("<b>規模</b>", styles["cell_gothic"]),
+            Paragraph("<b>役割</b>", styles["cell_gothic"]),
         ]
         project_style = TableStyle([
             *_GRID_STYLE,
@@ -350,12 +362,11 @@ def _build_side_project_content(
     styles: dict[str, ParagraphStyle],
 ) -> Paragraph:
     """Build the content column for a side project row."""
-    parts = []
-    parts.append(f"<b>{_escape(project.name)}</b>")
+    name_part = f"<b>{_escape(project.name)}</b>"
     if project.description:
-        text = _escape(project.description.strip()).replace(chr(10), "<br/>")
-        parts.append(text)
-    return Paragraph("<br/>".join(parts), styles["cell"])
+        desc_items = "<br/>".join(_break_after_period(_escape(d.strip())) for d in project.description)
+        return Paragraph(f"{name_part}<br/><br/>{desc_items}", styles["cell"])
+    return Paragraph(name_part, styles["cell"])
 
 
 def _build_side_experience(
@@ -389,15 +400,19 @@ def _build_side_experience(
         ]))
         elements.append(header_table)
 
-        # Project rows
+        # Project rows — each project as a separate table for better page splitting
         if company.projects:
             col_headers = [
                 Paragraph("<b>期間</b>", styles["cell_gothic"]),
                 Paragraph("<b>内容</b>", styles["cell_gothic"]),
                 Paragraph("<b>開発環境</b>", styles["cell_gothic"]),
-                Paragraph("<b>規模</b>", styles["cell_gothic"]),
+                Paragraph("<b>役割</b>", styles["cell_gothic"]),
             ]
-            table_data = [col_headers]
+            project_style = TableStyle([
+                *_GRID_STYLE,
+                ("BACKGROUND", (0, 0), (-1, 0), colors.Color(0.95, 0.95, 0.95)),
+                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+            ])
 
             for project in company.projects:
                 period_cell = Paragraph(
@@ -407,18 +422,15 @@ def _build_side_experience(
                 content_cell = _build_side_project_content(project, styles)
                 env_cell = _build_env_cell(project, styles)
                 team_cell = _build_team_cell(project, styles)
-                table_data.append([period_cell, content_cell, env_cell, team_cell])
 
-            project_table = Table(
-                table_data,
-                colWidths=[COL_PERIOD, COL_CONTENT, COL_ENV, COL_TEAM],
-            )
-            project_table.setStyle(TableStyle([
-                *_GRID_STYLE,
-                ("BACKGROUND", (0, 0), (-1, 0), colors.Color(0.95, 0.95, 0.95)),
-                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
-            ]))
-            elements.append(project_table)
+                project_table = Table(
+                    [col_headers, [period_cell, content_cell, env_cell, team_cell]],
+                    colWidths=[COL_PERIOD, COL_CONTENT, COL_ENV, COL_TEAM],
+                    repeatRows=1,
+                    splitInRow=1,
+                )
+                project_table.setStyle(project_style)
+                elements.append(project_table)
 
         elements.append(Spacer(1, 3 * mm))
 
