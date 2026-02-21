@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class Environment(BaseModel):
@@ -45,10 +45,17 @@ class StandardProject(_ProjectBase):
 class StarProject(_ProjectBase):
     """STAR法パターン."""
 
-    situation: str
-    task: str
+    situation: list[str]
+    task: list[str]
     action: list[str]
     result: list[str]
+
+    @field_validator("situation", "task", mode="before")
+    @classmethod
+    def _coerce_str_to_list(cls, v: str | list[str]) -> list[str]:
+        if isinstance(v, str):
+            return [v]
+        return v
 
 
 # Backward compatibility alias
@@ -66,6 +73,7 @@ class _CompanyBase(BaseModel):
     employees: str = ""
     listing: str = ""
     employment_type: str = ""
+    job_type: str = ""
     other_activities: list[str] = []
 
 
@@ -92,11 +100,18 @@ class SideProject(BaseModel):
 
     period: str
     name: str
-    description: str = ""
+    description: list[str] = []
     environment: Environment = Environment()
     abbreviate_env: bool = False
     team_size: str = ""
     role: str = ""
+
+    @field_validator("description", mode="before")
+    @classmethod
+    def _coerce_str_to_list(cls, v: str | list[str]) -> list[str]:
+        if isinstance(v, str):
+            return [v]
+        return v
 
 
 class SideCompany(BaseModel):
@@ -105,6 +120,7 @@ class SideCompany(BaseModel):
     company: str
     period: str
     employment_type: str = ""
+    job_type: str = ""
     projects: list[SideProject] = []
 
 

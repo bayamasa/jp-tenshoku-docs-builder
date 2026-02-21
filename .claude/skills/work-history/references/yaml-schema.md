@@ -23,6 +23,26 @@ projects:
       frameworks: ["Spring Boot"]
 ```
 
+### PDF上の書式ルール
+
+STAR法の `situation` / `task` / `action` / `result` および副業の `description` に共通するルール。
+
+| 記法 | 効果 |
+| --- | --- |
+| `。`（句点） | PDF上で句点の後に自動改行 |
+| `- ""` | 空行スペーサー（段落間の区切り） |
+| `・`（中黒） | 箇条書き記号として手動で記述（自動付与なし） |
+
+### 会社ヘッダーの構成
+
+PDF上で各会社は以下の構成で表示される:
+
+1. **会社名**（グレー背景ヘッダー行）
+2. **期間 | 職種・雇用形態**（`job_type` + `employment_type` を全角スペース区切りで結合）
+3. プロジェクトテーブル
+
+`business` / `capital` / `revenue` / `employees` / `listing` はモデル上存在するが、PDF上には表示されない。
+
 ---
 
 ## 標準形式
@@ -77,6 +97,7 @@ experience:
     period: "20xx年xx月～現在"
     business: "事業内容"
     employment_type: "正社員として勤務"
+    job_type: "バックエンドエンジニア"
     projects:
       - period: "20xx年xx月～現在"
         industry: "業界名"
@@ -143,6 +164,7 @@ experience:
 | `employees` | str | No | 従業員数 |
 | `listing` | str | No | 上場区分 (例: "東証プライム", "未上場") |
 | `employment_type` | str | No | 雇用形態 (例: "正社員として勤務") |
+| `job_type` | str | No | 職種 (例: "バックエンドエンジニア")。PDF上では会社名ヘッダーの下に「期間 | 職種・雇用形態」行として表示 |
 | `projects` | list[StarProject] | No | プロジェクト一覧 |
 | `other_activities` | list[str] | No | その他取り組み内容 (箇条書き)。プロジェクト単位では表現しにくい横断的な活動を記載 |
 
@@ -153,10 +175,10 @@ experience:
 | `period` | str | Yes | 期間 (例: "2022年4月～現在") |
 | `industry` | str | No | 業界 (例: "保険業界") |
 | `name` | str | Yes | プロジェクト名 |
-| `situation` | str | Yes | **Situation** - 状況・背景 |
-| `task` | str | Yes | **Task** - 課題・目標 |
-| `action` | list[str] | Yes | **Action** - 具体的な行動 (箇条書き) |
-| `result` | list[str] | Yes | **Result** - 成果・結果 (箇条書き) |
+| `situation` | list[str] | Yes | **Situation** - 状況・背景。`str` でも可（自動で `list[str]` に変換）。`・` を含めたい場合は文字列内に手動で記述。`- ""` は空行スペーサーとして機能 |
+| `task` | list[str] | Yes | **Task** - 課題・目標。`str` でも可（自動変換）。同上 |
+| `action` | list[str] | Yes | **Action** - 具体的な行動。`・` は自動付与されないため手動で記述。`- ""` は空行スペーサー |
+| `result` | list[str] | Yes | **Result** - 成果・結果。同上 |
 | `environment` | Environment | No | 開発環境 |
 | `abbreviate_env` | bool | No | `true` にすると開発環境欄に「同環境のため省略」と表示。同一会社内で前のプロジェクトと環境が同じ場合に使用 |
 | `team_size` | str | No | チーム規模 (例: "全15名") |
@@ -173,7 +195,7 @@ experience:
 | `aws` | list[str] | No | AWSサービス |
 | `azure` | list[str] | No | Azureサービス |
 | `gcp` | list[str] | No | GCPサービス |
-| `tools` | list[str] | No | ツール |
+| `tools` | list[str] | No | 他使用技術 (PDF上では「◆ 他使用技術」と表示) |
 | `other` | list[str] | No | その他 |
 
 ### SideCompany
@@ -183,6 +205,7 @@ experience:
 | `company` | str | Yes | 会社名/屋号 |
 | `period` | str | Yes | 期間 |
 | `employment_type` | str | No | 雇用形態 |
+| `job_type` | str | No | 職種 (例: "フルスタックエンジニア") |
 | `projects` | list[SideProject] | No | プロジェクト一覧 |
 
 ### SideProject
@@ -191,7 +214,7 @@ experience:
 | --- | --- | --- | --- |
 | `period` | str | Yes | 期間 |
 | `name` | str | Yes | プロジェクト名 |
-| `description` | str | No | 説明 |
+| `description` | list[str] | No | 説明。`str` でも可（自動で `list[str]` に変換）。`- ""` は空行スペーサー。`。` の後に自動改行 |
 | `environment` | Environment | No | 開発環境 |
 | `abbreviate_env` | bool | No | `true` にすると開発環境欄に「同環境のため省略」と表示 |
 | `team_size` | str | No | チーム規模 |
@@ -248,17 +271,21 @@ experience:
     employees: ""
     listing: ""
     employment_type: "正社員として勤務"
+    job_type: "バックエンドエンジニア"
     projects:
       - period: "20xx年xx月～現在"
         industry: "業界名"
         name: "プロジェクト名"
-        situation: |
-          どのような状況・背景があったか。
-        task: |
-          何を達成する必要があったか。
+        situation:
+          - "状況・背景の説明文。"
+        task:
+          - "何を達成する必要があったか。"
         action:
           - "具体的に行った行動1"
-          - "具体的に行った行動2"
+          - ""
+          - "サブセクションの見出し"
+          - "・箇条書き項目1"
+          - "・箇条書き項目2"
         result:
           - "得られた成果・結果1"
           - "得られた成果・結果2"
@@ -282,8 +309,10 @@ side_experience:
     projects:
       - period: "20xx年xx月～現在"
         name: "プロジェクト名"
-        description: |
-          プロジェクトの説明。
+        description:
+          - "プロジェクトの説明。詳細な背景。"
+          - ""
+          - "追加の説明や成果。"
         environment:
           languages: ["TypeScript"]
           frameworks: ["Next.js"]
