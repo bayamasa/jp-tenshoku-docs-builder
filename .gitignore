@@ -200,6 +200,7 @@ cython_debug/
 
 # Generated PDFs
 output/
+!sample/output/
 
 # Fonts (user-provided)
 fonts/*.ttf

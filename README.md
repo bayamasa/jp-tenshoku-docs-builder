@@ -2,6 +2,14 @@
 
 YAMLファイルから日本語の職務経歴書・履歴書PDFを生成するCLIツールです。
 
+## サンプルPDF
+
+生成されるPDFのサンプルは以下から確認できます。
+
+- [職務経歴書（標準）](sample/output/work_history_standard.pdf)
+- [職務経歴書（STAR法）](sample/output/work_history_star.pdf)
+- [履歴書](sample/output/resume.pdf)
+
 ## 必要環境
 
 - Python 3.11+
@@ -62,6 +70,8 @@ uv run python -m jp_tenshoku_docs_builder sample/work_history_standard.yaml -c s
 
 個人情報（氏名・住所・電話番号等）は `credential.yaml` に分離しています。
 `-c` オプションで指定すると、メインのYAMLにマージされます（credential側の値が優先）。
+AIに読み込まれたくない個人情報ファイルを別出しすることで、職務経歴書内を読み込んでも問題ない形としています。
+ただし、職務経歴書・履歴書の他データも個人情報ではあるので、AIを使ってデータを作成する歳には自己責任でお願いします。
 
 ### credential.yaml（個人情報）
 
@@ -78,8 +88,8 @@ uv run python -m jp_tenshoku_docs_builder sample/work_history_standard.yaml -c s
 | `address_kana2` / `address2` / `address_zip2` | 連絡先 |
 | `tel2` / `fax2` | 連絡先電話・FAX |
 
-実際の個人情報は `.personal/credential.yaml` に配置し、Git管理外としてください。
-`sample/credential.yaml` にサンプルがあります。
+実際の個人情報は `.personal/` に配置し、Git管理外としてください。
+`sample/` にサンプルがあります。
 
 ### 職務経歴書
 
@@ -97,7 +107,7 @@ uv run python -m jp_tenshoku_docs_builder sample/work_history_standard.yaml -c s
 
 #### 表示形式
 
-- **standard** - 概要・担当フェーズ・業務内容・実績をそのまま記載する標準形式
+- **standard** - 概要・担当フェーズ・業務内容・実績をそのまま記載する、よくある形式
 - **star** - Situation / Task / Action / Result で構造化して記載するSTAR法形式
 
 #### 会社ヘッダー構成
@@ -116,9 +126,7 @@ STAR法形式のプロジェクト内容（`situation` / `task` / `action` / `re
 
 | 記法 | 効果 |
 |---|---|
-| `。`（句点） | PDF上で句点の後に自動改行 |
 | `- ""` | 空行スペーサー（段落間の区切りとして機能） |
-| `・`（中黒） | 箇条書き記号として手動で記述（自動付与なし） |
 
 ```yaml
 # 例: action での混合記法
@@ -190,7 +198,8 @@ action:
 │   ├── credential.yaml             # 個人情報サンプル
 │   ├── work_history_standard.yaml  # 職務経歴書 標準フォーマットのサンプル
 │   ├── work_history_star.yaml      # 職務経歴書 STAR法フォーマットのサンプル
-│   └── resume.yaml                 # 履歴書サンプル（キャリア情報のみ）
+│   ├── resume.yaml                 # 履歴書サンプル（キャリア情報のみ）
+│   └── output/                    # サンプルPDF出力（Git管理対象）
 ├── .personal/             # 個人データ格納先（中身は.gitignore）
 ├── Makefile               # ビルド・テスト用コマンド
 ├── output/                # 生成PDF出力先（.gitignore）
