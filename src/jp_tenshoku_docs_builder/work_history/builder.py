@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from reportlab.lib import colors
@@ -78,6 +79,23 @@ _GRID_STYLE = [
 def _escape(text: str) -> str:
     """Escape text for ReportLab Paragraph XML."""
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+_LINK_RE = re.compile(r'<a\s+href="([^"]*)">([^<]*)</a>')
+
+
+def _escape_with_links(text: str) -> str:
+    """Escape text for ReportLab Paragraph XML, preserving <a> hyperlink tags."""
+    result = []
+    last_end = 0
+    for m in _LINK_RE.finditer(text):
+        result.append(_escape(text[last_end:m.start()]))
+        href = m.group(1)
+        inner = _escape(m.group(2))
+        result.append(f'<a href="{href}" color="blue"><u>{inner}</u></a>')
+        last_end = m.end()
+    result.append(_escape(text[last_end:]))
+    return "".join(result)
 
 
 def _build_header(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) -> list:
@@ -176,16 +194,6 @@ def _build_project_content(project: StandardProject, styles: dict[str, Paragraph
     return Paragraph("<br/><br/>".join(parts), styles["cell"])
 
 
-def _break_after_period(text: str) -> str:
-    """Insert <br/> after each '。' in already-escaped text."""
-    text = text.replace("。", "。\n")
-    # Deduplicate consecutive newlines (e.g. original had 。\n)
-    while "\n\n" in text:
-        text = text.replace("\n\n", "\n")
-    text = text.rstrip("\n")
-    return text.replace("\n", "<br/>")
-
-
 def _build_project_content_star(project: StarProject, styles: dict[str, ParagraphStyle]) -> Paragraph:
     """Build the main content column for a STAR project row."""
     parts = []
@@ -199,22 +207,22 @@ def _build_project_content_star(project: StarProject, styles: dict[str, Paragrap
     parts.append(f"<b>{header_line}</b>")
 
     if project.situation:
-        items = "<br/>".join(_break_after_period(_escape(s.strip())) for s in project.situation)
+        items = "<br/>".join(_escape(s.strip()) for s in project.situation)
         if items.replace("<br/>", ""):
             parts.append(f"◆ 状況（Situation）<br/>{items}")
 
     if project.task:
-        items = "<br/>".join(_break_after_period(_escape(t.strip())) for t in project.task)
+        items = "<br/>".join(_escape(t.strip()) for t in project.task)
         if items.replace("<br/>", ""):
             parts.append(f"◆ 課題（Task）<br/>{items}")
 
     if project.action:
-        items = "<br/>".join(_break_after_period(_escape(a.strip())) for a in project.action)
+        items = "<br/>".join(_escape(a.strip()) for a in project.action)
         if items.replace("<br/>", ""):
             parts.append(f"◆ 行動（Action）<br/>{items}")
 
     if project.result:
-        items = "<br/>".join(_break_after_period(_escape(r.strip())) for r in project.result)
+        items = "<br/>".join(_escape(r.strip()) for r in project.result)
         if items.replace("<br/>", ""):
             parts.append(f"◆ 結果（Result）<br/>{items}")
 
@@ -364,7 +372,7 @@ def _build_side_project_content(
     """Build the content column for a side project row."""
     name_part = f"<b>{_escape(project.name)}</b>"
     if project.description:
-        desc_items = "<br/>".join(_break_after_period(_escape(d.strip())) for d in project.description)
+        desc_items = "<br/>".join(_escape(d.strip()) for d in project.description)
         return Paragraph(f"{name_part}<br/><br/>{desc_items}", styles["cell"])
     return Paragraph(name_part, styles["cell"])
 
@@ -527,6 +535,18 @@ def _build_self_pr(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) ->
     return elements
 
 
+def _build_other_remarks(data: _WorkHistoryBase, styles: dict[str, ParagraphStyle]) -> list:
+    """Build その他記載事項 section."""
+    if not data.other_remarks:
+        return []
+    elements = []
+    elements.append(Paragraph("■その他記載事項", styles["section_header"]))
+    for r in data.other_remarks:
+        elements.append(Paragraph(f"・{_escape_with_links(r)}", styles["bullet"]))
+    elements.append(Spacer(1, 2 * mm))
+    return elements
+
+
 class _PageNumCanvas:
     """Mixin to draw page numbers on each page."""
 
@@ -576,6 +596,7 @@ def _build_elements(
     elements.extend(_build_technical_skills(data, styles))
     elements.extend(_build_qualifications(data, styles))
     elements.extend(_build_self_pr(data, styles))
+    elements.extend(_build_other_remarks(data, styles))
     elements.append(Paragraph("以上", styles["right"]))
     return elements
 

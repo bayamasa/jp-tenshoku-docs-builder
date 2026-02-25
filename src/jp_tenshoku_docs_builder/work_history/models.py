@@ -164,6 +164,7 @@ class _WorkHistoryBase(BaseModel):
     technical_skills: list[SkillCategory] = []
     qualifications: list[Qualification] = []
     self_pr: list[SelfPRSection] = []
+    other_remarks: list[str] = []
 
 
 class StandardWorkHistory(_WorkHistoryBase):
