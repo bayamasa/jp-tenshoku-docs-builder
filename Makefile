@@ -12,30 +12,33 @@ test:
 lint:
 	uv run ruff check src/ tests/
 
-# 職務経歴書（標準） - YAML=入力ファイル, CRED=個人情報ファイル, OUTPUT=出力ファイル
+# 職務経歴書（標準） - .personal/ の個人情報を使用してPDF生成
 build-wh-standard:
-	uv run python -m jp_tenshoku_docs_builder $(YAML) -c $(CRED) -o $(OUTPUT)
+	@mkdir -p output
+	uv run python -m jp_tenshoku_docs_builder .personal/work_history_standard.yaml -c .personal/credential.yaml -o output/work-history-standard.pdf
 
-# 職務経歴書（STAR法） - YAML=入力ファイル, CRED=個人情報ファイル, OUTPUT=出力ファイル
+# 職務経歴書（STAR法） - .personal/ の個人情報を使用してPDF生成
 build-wh-star:
-	uv run python -m jp_tenshoku_docs_builder $(YAML) -c $(CRED) -o $(OUTPUT) --format star
+	@mkdir -p output
+	uv run python -m jp_tenshoku_docs_builder .personal/work_history_star.yaml -c .personal/credential.yaml -o output/work-history-star.pdf --format star
 
-# 履歴書 - YAML=入力ファイル, CRED=個人情報ファイル, OUTPUT=出力ファイル
+# 履歴書 - .personal/ の個人情報を使用してPDF生成
 build-resume:
-	uv run python -m jp_tenshoku_docs_builder $(YAML) -c $(CRED) -o $(OUTPUT) --type resume
+	@mkdir -p output
+	uv run python -m jp_tenshoku_docs_builder .personal/resume.yaml -c .personal/credential.yaml -o output/resume.pdf --type resume
 
-# サンプルPDF生成
+# サンプルPDF生成（sample/ のダミーデータを使用）
 sample-wh-standard:
 	@mkdir -p output
-	$(MAKE) build-wh-standard YAML=sample/work_history_standard.yaml CRED=sample/credential.yaml OUTPUT=output/work-history-standard.pdf
+	uv run python -m jp_tenshoku_docs_builder sample/work_history_standard.yaml -c sample/credential.yaml -o output/work-history-standard-sample.pdf
 
 sample-wh-star:
 	@mkdir -p output
-	$(MAKE) build-wh-star YAML=sample/work_history_star.yaml CRED=sample/credential.yaml OUTPUT=output/work-history-star.pdf
+	uv run python -m jp_tenshoku_docs_builder sample/work_history_star.yaml -c sample/credential.yaml -o output/work-history-star-sample.pdf --format star
 
 sample-resume:
 	@mkdir -p output
-	$(MAKE) build-resume YAML=sample/resume.yaml CRED=sample/credential.yaml OUTPUT=output/resume.pdf
+	uv run python -m jp_tenshoku_docs_builder sample/resume.yaml -c sample/credential.yaml -o output/resume-sample.pdf --type resume
 
 # Docker
 docker-build:
